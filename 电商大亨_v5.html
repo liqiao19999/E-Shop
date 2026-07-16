@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>电商大亨 v5</title>
+<style>
+:root{--bg:#080c12;--panel:#111820;--border:#1c2530;--accent:#ff4757;--gold:#f9ca24;--green:#2ed573;--blue:#1e90ff;--purple:#a55eea;--text:#dfe6e9;--text2:#636e72;--card:#171d28;--self:#ff475722}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;touch-action:manipulation;font-size:12px}
+.app{max-width:1340px;margin:0 auto;padding:8px}
+.topbar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:6px;flex-wrap:wrap}
+.topbar .logo{font-size:26px}
+.topbar h1{font-size:14px;color:var(--accent);margin-right:auto}
+.sp{display:flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:5px 9px;min-width:70px;cursor:pointer;transition:0.2s}
+.sp.clickable:hover{border-color:var(--accent)}
+.sp .icon{font-size:15px}.sp .val{font-size:13px;font-weight:bold}.sp .lbl{font-size:7px;color:var(--text2)}
+.day-badge{background:var(--accent);color:#fff;padding:4px 10px;border-radius:15px;font-weight:bold;font-size:11px}
+.gauge-row{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.gauge-card{flex:1;min-width:85px;background:var(--card);border-radius:9px;padding:6px;text-align:center;cursor:pointer;transition:0.2s}
+.gauge-card:hover{border:1px solid var(--accent)}
+.gauge-card canvas{display:block;margin:0 auto}
+.gauge-card .label{font-size:8px;color:var(--text2);margin-top:1px}
+.layout{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:8px;overflow:hidden;cursor:pointer;transition:0.2s}
+.panel:hover{border-color:rgba(255,71,87,0.3)}
+.panel h3{font-size:10px;color:var(--accent);margin-bottom:5px;display:flex;align-items:center;gap:4px;text-transform:uppercase;letter-spacing:1px}
+.panel.w2{grid-column:span 2}.panel.w3{grid-column:span 3}.panel.w4{grid-column:span 4}
+.scroll-area{overflow-y:auto;max-height:190px;scrollbar-width:thin;scrollbar-color:#1c2530 #111820}
+.scroll-area::-webkit-scrollbar{width:4px}
+.scroll-area::-webkit-scrollbar-track{background:#111820}
+.scroll-area::-webkit-scrollbar-thumb{background:#1c2530;border-radius:2px}
+.btn{padding:4px 10px;border-radius:5px;border:none;cursor:pointer;font-size:10px;font-weight:600;transition:0.2s;white-space:nowrap;touch-action:manipulation}
+.btn.primary{background:var(--accent);color:#fff}.btn.primary:hover{background:#e84150}
+.btn.gold{background:var(--gold);color:#111}.btn.green{background:var(--green);color:#111}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn.ghost:hover{background:#1c2530}
+.btn:disabled{opacity:0.35;cursor:not-allowed}
+.market-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:4px}
+.market-card{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:7px;cursor:pointer;transition:0.2s;text-align:center;touch-action:manipulation}
+.market-card:hover,.market-card:active{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,0.3)}
+.market-card .emoji{font-size:26px}.market-card .name{font-size:10px;font-weight:bold}.market-card .price{font-size:11px;color:var(--gold)}.market-card .trend{font-size:7px;padding:1px 6px;border-radius:4px;display:inline-block}.market-card .cat{font-size:7px;color:var(--text2);margin-top:1px}
+.th{background:rgba(255,71,87,0.2);color:var(--accent)}.tc{background:rgba(99,110,114,0.2);color:var(--text2)}.tf{background:rgba(30,144,255,0.2);color:var(--blue)}
+
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:4px}
+.inv-card{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:8px;cursor:pointer;transition:0.2s;position:relative;touch-action:manipulation}
+.inv-card:hover{border-color:var(--accent)}
+.inv-card .emoji{font-size:24px}.inv-card .name{font-size:11px;font-weight:bold}.inv-card .detail{font-size:9px;color:var(--text2)}.inv-card .stkbar{height:3px;background:#1c2530;border-radius:2px;margin:3px 0}
+.inv-card .stkfill{height:100%;background:var(--green);border-radius:2px}
+.inv-card .qbtn{position:absolute;top:5px;right:5px;background:var(--accent);color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:9px;cursor:pointer;font-weight:bold;touch-action:manipulation}
+.inv-card .qbtn:hover{background:#e84150}
+.info-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);padding:5px 7px;border-radius:5px;margin:2px 0;font-size:10px;gap:5px}
+.info-row.self{background:rgba(255,71,87,0.15);border:1px solid rgba(255,71,87,0.4);font-weight:bold}
+.info-row.self .rank-badge{background:var(--accent);color:#fff;padding:0px 6px;border-radius:4px;font-size:8px;margin-right:4px}
+.mkt-btn{display:block;width:100%;text-align:left;padding:7px 9px;margin:3px 0;background:var(--card);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:10px;color:var(--text);transition:0.2s;touch-action:manipulation}
+.mkt-btn:active,.mkt-btn:hover{border-color:var(--accent);background:#1c2530}
+.mkt-btn .cost{float:right;color:var(--gold)}
+.log-list{max-height:220px;overflow-y:auto;font-size:9px;line-height:1.8;scrollbar-width:thin;scrollbar-color:#1c2530 #111820}
+.log-list::-webkit-scrollbar{width:3px}
+.log-list::-webkit-scrollbar-thumb{background:#1c2530;border-radius:2px}
+.log-list .log{padding:1px 0;border-bottom:1px solid rgba(28,37,48,0.4);display:flex;gap:3px}
+.log .dt{color:var(--text2);min-width:28px;flex-shrink:0;font-size:8px}
+.log.good{color:var(--green)}.log.bad{color:var(--accent)}.log.info{color:var(--blue)}.log.warn{color:var(--gold)}.log.neutral{color:var(--purple)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:1000;justify-content:center;align-items:center;padding:10px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;max-width:500px;width:94%;max-height:85vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#1c2530 #111820}
+.modal::-webkit-scrollbar{width:4px}
+.modal::-webkit-scrollbar-thumb{background:#1c2530;border-radius:2px}
+.modal.large{max-width:720px}
+.modal h3{color:var(--accent);margin-bottom:6px;font-size:14px}
+.modal input[type=range]{width:100%;height:28px;accent-color:var(--accent);cursor:pointer;margin:4px 0}
+.modal input[type=number]{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:5px;width:80px;font-size:13px}
+.modal input[type=number].wide{width:100%}
+.tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:7px;margin:1px}
+.buff-tag{padding:2px 6px;border-radius:4px;font-size:8px;display:inline-block;margin:1px}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,71,87,0.4)}50%{box-shadow:0 0 0 8px rgba(255,71,87,0)}}.pulse{animation:pulse 2s infinite}
+.loan-badge{background:var(--accent);color:#fff;padding:2px 7px;border-radius:7px;font-size:9px;animation:pulse 2s infinite;cursor:pointer}
+.day-sale{font-size:9px;color:var(--text2);margin-top:2px;line-height:1.4;min-height:16px}
+.mini-chart canvas{display:block;margin:0 auto}
+.rank-table{width:100%;border-collapse:collapse;font-size:10px}
+.rank-table td,.rank-table th{padding:4px 6px;border-bottom:1px solid var(--border);text-align:left}
+.rank-table .rnk{width:30px;text-align:center;font-weight:bold}
+.rank-table .my-row{background:rgba(255,71,87,0.15);font-weight:bold}
+.rank-table .my-row td{border-bottom:2px solid var(--accent)}
+.buff-list{font-size:9px;line-height:1.8;margin-top:6px}
+.buff-list .b-line{padding:2px 6px;margin:1px 0;background:var(--card);border-radius:4px;font-size:9px}
+@media(max-width:900px){.layout{grid-template-columns:1fr 1fr}.panel.w2,.panel.w3,.panel.w4{grid-column:span 2}.gauge-card{flex:1 1 45%;min-width:120px}.market-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}.inv-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}.modal{max-width:95%;padding:10px}.scroll-area{max-height:160px}}
+@media(max-width:550px){.layout{grid-template-columns:1fr}.panel.w2,.panel.w3,.panel.w4{grid-column:span 1}.gauge-card{flex:1 1 44%;min-width:100px}.market-grid{grid-template-columns:repeat(2,1fr)}.inv-grid{grid-template-columns:repeat(2,1fr)}.panel{padding:6px}.panel h3{font-size:9px}.modal{max-width:98%;padding:8px}.modal input[type=range]{height:34px}.btn{font-size:8px;padding:3px 7px}.scroll-area{max-height:140px}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="topbar">
+  <span class="logo">🏪</span><h1>电商大亨</h1>
+  <span class="day-badge">📅 D<span id="day">1</span></span>
+  <div class="sp clickable" onclick="showReport()"><span class="icon">💰</span><div><div class="val" style="color:var(--gold)" id="money">¥50000</div><div class="lbl">资金</div></div></div>
+  <div class="sp clickable" onclick="showDayDetail()"><span class="icon">📊</span><div><div class="val" style="color:var(--green)" id="dayRev">¥0</div><div class="lbl">今日营收</div></div></div>
+  <div class="sp"><span class="icon">🏆</span><div><div class="val" style="color:var(--gold)" id="level">Lv.1</div><div class="lbl">等级</div></div></div>
+  <div class="sp clickable" onclick="showNetWorth()"><span class="icon">💼</span><div><div class="val" style="color:var(--blue)" id="netWorth">¥50000</div><div class="lbl">总资产</div></div></div>
+  <div id="loanStatus"></div>
+  <button class="btn primary pulse" onclick="nextDay()">▶ 推进一天</button>
+  <button class="btn gold" onclick="toggleAuto()" id="autoBtn">⏱ 自动:关</button>
+  <button class="btn blue" onclick="showReport()">📈 报表</button>
+  <button class="btn ghost" onclick="showAchievements()">🏅 成就</button>
+  <span style="font-size:8px;color:var(--text2)">空格键推进</span>
+</div>
+<div class="gauge-row">
+  <div class="gauge-card" onclick="showGaugeDetail('fame')"><canvas id="gFame" width="90" height="62"></canvas><div class="label">⭐ 知名度</div></div>
+  <div class="gauge-card" onclick="showGaugeDetail('rep')"><canvas id="gRep" width="90" height="62"></canvas><div class="label">💎 信誉</div></div>
+  <div class="gauge-card" onclick="showGaugeDetail('share')"><canvas id="gShare" width="90" height="62"></canvas><div class="label">📈 份额</div></div>
+  <div class="gauge-card" style="flex:2.5;min-width:180px" onclick="showBigChart()"><canvas id="chartRev" width="320" height="62"></canvas><div class="label">📉 营收趋势（点击放大）</div></div>
+</div>
+<div class="layout">
+  <div class="panel w3" onclick="showMarketDetail()"><h3>📦 进货市场 <span style="color:var(--text2);font-weight:normal;letter-spacing:0">库存<span id="stkCur">0</span>/<span id="stkMax">30</span> | <span style="color:var(--gold);cursor:pointer" onclick="event.stopPropagation();batchPrice()">利润率<span id="mkpDisp">1.8x</span> ✎</span></span></h3><div class="scroll-area" id="marketScroll"><div class="market-grid" id="market"></div></div><div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap"><button class="btn ghost" onclick="event.stopPropagation();showLoan()" style="font-size:8px">🏦 贷款</button><button class="btn ghost" onclick="event.stopPropagation();expandStorage()" style="font-size:8px">📦 扩容 ¥800(+10格)</button></div></div>
+  <div class="panel" onclick="showCalendarDetail()"><h3>📅 促销日历</h3><div id="calendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;font-size:7px"></div><div style="font-size:7px;color:var(--text2);margin-top:2px">🔴大促 | 🇨🇳今天 | 按月自动更新</div></div>
+  <div class="panel w3" onclick="showInventoryDetail()"><h3>🏬 我的店铺</h3><div class="scroll-area" id="invScroll"><div class="inv-grid" id="inventory"></div></div><div class="day-sale" id="daySaleDetail"></div></div>
+  <div class="panel" onclick="showMktDetail()"><h3>📢 营销 <small style="color:var(--text2);font-weight:normal;letter-spacing:0">按天计费</small></h3><div id="mktPanel"></div><div id="buffs" style="font-size:7px;margin-top:4px"></div></div>
+  <div class="panel" onclick="showRivalDetail()"><h3>⚔️ 排名 <small style="color:var(--text2);font-weight:normal;letter-spacing:0" id="rivalCount">13家</small></h3><div class="scroll-area" id="rivals"></div></div>
+  <div class="panel" onclick="showEmpDetail()"><h3>👥 团队 <small id="empInfo" style="color:var(--text2);font-weight:normal;letter-spacing:0">详情</small></h3><div class="scroll-area"><div id="employees"></div></div><button class="btn ghost" onclick="event.stopPropagation();showHire()" style="width:100%;margin-top:3px;font-size:8px">➕ 招聘</button></div>
+  <div class="panel" onclick="showTalentDetail()"><h3>🔮 天赋 <span style="color:var(--gold);font-weight:normal;letter-spacing:0">点:<span id="tp">0</span></span></h3><div id="talents"></div></div>
+  <div class="panel" onclick="showLogDetail()"><h3>📋 经营日志</h3><div class="log-list" id="log"></div></div>
+</div>
+<div class="modal-overlay" id="mo"><div class="modal" id="mc"></div></div>
+</div>
+
+<script>
+// ============ 数据 ============
+const CATMAP={phone_digital:'📱手机数码',computer:'💻电脑办公',home_appliance:'🔌家用电器',clothing:'👗服饰内衣',beauty:'💄美妆护肤',food:'🍜食品饮料',home:'🏠家居家具',sports:'⚽运动户外',pet:'🐶宠物生活',auto:'🚗汽车用品',baby:'🍼母婴用品',book:'📚图书文具',luxury:'💍珠宝配饰',health:'💊医药保健'};
+
+const PRODUCTS=[
+  {id:'phone_case',emoji:'📱',name:'创意手机壳',bc:12,bp:30,cat:'phone_digital',tier:1},
+  {id:'t_shirt',emoji:'👕',name:'纯棉印花T恤',bc:25,bp:60,cat:'clothing',tier:1},
+  {id:'snack_box',emoji:'🍪',name:'零食大礼包',bc:20,bp:50,cat:'food',tier:1},
+  {id:'sticker_set',emoji:'🎀',name:'手帐贴纸套装',bc:5,bp:15,cat:'book',tier:1},
+  {id:'phone_stand',emoji:'🔖',name:'桌面手机支架',bc:8,bp:20,cat:'phone_digital',tier:1},
+  {id:'key_chain',emoji:'🔑',name:'定制钥匙扣',bc:6,bp:18,cat:'luxury',tier:1},
+  {id:'mask_pack',emoji:'😷',name:'医用口罩50只',bc:10,bp:28,cat:'health',tier:1},
+  {id:'socks',emoji:'🧦',name:'运动袜5双装',bc:16,bp:38,cat:'clothing',tier:1},
+  {id:'bluetooth',emoji:'🎧',name:'蓝牙耳机',bc:45,bp:120,cat:'phone_digital',tier:2},
+  {id:'desk_lamp',emoji:'💡',name:'LED护眼台灯',bc:55,bp:140,cat:'computer',tier:2},
+  {id:'skincare',emoji:'✨',name:'护肤套装',bc:60,bp:160,cat:'beauty',tier:2},
+  {id:'wireless_charger',emoji:'🔋',name:'无线充电器',bc:38,bp:90,cat:'phone_digital',tier:2},
+  {id:'yoga_mat',emoji:'🧘',name:'加厚瑷伽垫',bc:30,bp:75,cat:'sports',tier:2},
+  {id:'pet_toy',emoji:'🐾',name:'宠物玩具套装',bc:22,bp:58,cat:'pet',tier:2},
+  {id:'bento_box',emoji:'🍱',name:'日式便当盒',bc:28,bp:65,cat:'home',tier:2},
+  {id:'baby_wipes',emoji:'👶',name:'婴儿湿巾12包',bc:18,bp:48,cat:'baby',tier:2},
+  {id:'car_charger',emoji:'🔌',name:'车载快充头',bc:30,bp:75,cat:'auto',tier:2},
+  {id:'sports_shoes',emoji:'👟',name:'运动跑鞋',bc:70,bp:185,cat:'sports',tier:3},
+  {id:'toy_drone',emoji:'🚁',name:'迷你无人机',bc:85,bp:230,cat:'phone_digital',tier:3},
+  {id:'gaming_mouse',emoji:'🖱️',name:'电竞鼠标',bc:65,bp:165,cat:'computer',tier:3},
+  {id:'perfume',emoji:'🌸',name:'香水礼盒',bc:72,bp:185,cat:'beauty',tier:3},
+  {id:'tent',emoji:'⛺',name:'户外帐篷',bc:95,bp:250,cat:'sports',tier:3},
+  {id:'milk_powder',emoji:'🍼',name:'进口奶粉',bc:80,bp:210,cat:'baby',tier:3},
+  {id:'coffee_maker',emoji:'☕',name:'胶囊咖啡机',bc:115,bp:300,cat:'home_appliance',tier:4},
+  {id:'air_purifier',emoji:'🌬️',name:'空气净化器',bc:135,bp:360,cat:'home_appliance',tier:4},
+  {id:'smart_watch',emoji:'⌚',name:'智能手表',bc:100,bp:280,cat:'phone_digital',tier:4},
+  {id:'massage_gun',emoji:'💆',name:'筋膜枪',bc:90,bp:240,cat:'sports',tier:4},
+  {id:'car_fridge',emoji:'🚗',name:'车载冰箱',bc:125,bp:320,cat:'auto',tier:4},
+  {id:'projector',emoji:'📽️',name:'便携投影仪',bc:160,bp:440,cat:'computer',tier:4},
+  {id:'robot_vacuum',emoji:'🤖',name:'扫地机器人',bc:180,bp:480,cat:'home_appliance',tier:4},
+];
+
+const RIVAL_NAMES=['⚡闪电电商','💎品质优选','🌊潮品汇','🚀速达商城','🎯优品生活','🔥爆款之家','🦅飞鹰商贸','🐉龙腾电商','🌙月光优品','🌟星辰数码','🦊灵狐严选','🐋鲸选生活'];
+
+const FESTIVALS=new Set([18,163,170,177,285,286,346,347,15,16,17,50,100,200,300]);
+const EVENTS=[
+  {t:'平台大促！流量翻4倍',eff:'traffic',v:4,d:1,type:'good'},{t:'恶意差评攻击，信誉-8',eff:'rep',v:-8,d:1,type:'bad'},
+  {t:'供应商清仓，进价7折',eff:'cost',v:0.7,d:1,type:'good'},{t:'物流罢工，每单运费+¥5',eff:'shipping',v:5,d:1,type:'bad'},
+  {t:'大V推荐！知名度+20',eff:'fame',v:20,d:1,type:'good'},{t:'对手价格战，市价-20%',eff:'market',v:0.8,d:2,type:'bad'},
+  {t:'平台流量扶持x2',eff:'traffic',v:2,d:2,type:'good'},{t:'仓库故障，损坏20%库存',eff:'damage',v:0.2,d:1,type:'bad'},
+  {t:'政府消费券，每单补贴¥8',eff:'subsidy',v:8,d:2,type:'good'},{t:'行业峰会曝光，知名度+10',eff:'fame',v:10,d:1,type:'good'},
+  {t:'快递丢件，信誉-5',eff:'rep',v:-5,d:1,type:'bad'},{t:'新品首发流量x2.5',eff:'traffic',v:2.5,d:1,type:'good'},
+  {t:'税务局抽查(信誉>50无视)',eff:'tax',v:500,d:1,type:'neutral'},{t:'供应商涨价，进价+30%',eff:'cost_up',v:1.3,d:2,type:'bad'},
+];
+const EMPLOYEES=[
+  {id:'picker',emoji:'📦',name:'拣货员',desc:'库存上限+15',eff:'stock',val:15,sal:180,cost:800,type:'basic'},
+  {id:'cs',emoji:'💬',name:'客服专员',desc:'信誉+0.5/天 降退货',eff:'rep',val:0.5,sal:220,cost:1000,type:'basic'},
+  {id:'marketer',emoji:'📊',name:'营销专员',desc:'每日流量x1.3',eff:'traffic',val:0.3,sal:280,cost:1200,type:'basic'},
+  {id:'analyst',emoji:'📈',name:'数据分析师',desc:'进货价降低',eff:'analyst',val:0.85,sal:350,cost:1500,type:'mid'},
+  {id:'designer',emoji:'🎨',name:'美工设计师',desc:'售价+10%',eff:'design',val:0.1,sal:400,cost:1800,type:'mid'},
+  {id:'manager',emoji:'👔',name:'运营经理',desc:'库存+10 流量x1.2',eff:'all',val:0,sal:550,cost:2500,type:'senior'},
+  {id:'gm',emoji:'👑',name:'总经理',desc:'全自动托管经营',eff:'gm',val:0,sal:900,cost:4000,type:'executive'},
+];
+const TALENTS=[
+  {id:'bargain',emoji:'🤝',name:'砍价高手',desc:'进价-10%/级',cost:3,eff:'perm_cost',val:0.1,max:3},
+  {id:'seo',emoji:'🔎',name:'SEO优化',desc:'流量+20%/级',cost:2,eff:'perm_traffic',val:0.2,max:5},
+  {id:'brand',emoji:'🏷️',name:'品牌建设',desc:'售价上限+15%/级',cost:3,eff:'perm_price',val:0.15,max:3},
+  {id:'logistics',emoji:'🚚',name:'物流升级',desc:'库存上限+10/级',cost:2,eff:'perm_stock',val:10,max:5},
+  {id:'loyalty',emoji:'💝',name:'客户忠诚',desc:'复购率+5%/级',cost:3,eff:'perm_loyalty',val:0.05,max:4},
+  {id:'negotiation',emoji:'📝',name:'谈判大师',desc:'营销费用-15%/级',cost:2,eff:'perm_mkt_disc',val:0.15,max:3},
+];
+const ACHIEVEMENTS=[
+  {id:'a1',icon:'🎉',name:'开张大喜',desc:'第一笔销售',c:g=>g.totalSold>=1},
+  {id:'a2',icon:'💰',name:'日入千金',desc:'单日营收>¥1000',c:g=>g.bestDay>=1000},
+  {id:'a3',icon:'💎',name:'万元户',desc:'单日营收>¥10000',c:g=>g.bestDay>=10000},
+  {id:'a4',icon:'⭐',name:'小有名气',desc:'知名度达50',c:g=>g.fame>=50},
+  {id:'a5',icon:'🌟',name:'家喻户晓',desc:'知名度达100',c:g=>g.fame>=100},
+  {id:'a6',icon:'👥',name:'小团队',desc:'3名员工',c:g=>g.employees.length>=3},
+  {id:'a7',icon:'🏢',name:'大家庭',desc:'6名员工',c:g=>g.employees.length>=6},
+  {id:'a8',icon:'📅',name:'基业长青',desc:'经营50天',c:g=>g.day>=50},
+  {id:'a9',icon:'🏆',name:'百年老店',desc:'经营100天',c:g=>g.day>=100},
+  {id:'a10',icon:'🔮',name:'电商精英',desc:'等级5级',c:g=>g.level>=5},
+  {id:'a11',icon:'👑',name:'电商大亨',desc:'等级10级',c:g=>g.level>=10},
+  {id:'a12',icon:'💸',name:'大富翁',desc:'资金超¥500k',c:g=>g.money>=500000},
+  {id:'a13',icon:'📦',name:'商品齐全',desc:'解锁全部商品',c:g=>g.productsUnlocked.length>=PRODUCTS.length},
+];
+
+// ============ 全局状态 ============
+let G={
+  day:1,money:50000,fame:0,reputation:50,level:1,dailyRevenue:0,
+  totalSold:0,totalRevenue:0,bestDay:0,talentPoints:0,
+  inventory:[],marketPrices:{},activeEvents:[],activeBuffs:[],
+  employees:[],talents:{},rivals:[],running:true,autoMode:false,autoTimer:null,
+  achievements:new Set,productsUnlocked:PRODUCTS.filter(p=>p.tier<=2),
+  revenueHistory:[],fameHistory:[],shareHistory:[],
+  loan:0,loanDaysLeft:0,loanInterestRate:0.015,
+  supplierFavor:{},storageExpanded:0,globalMarkup:1.8,
+  dailyLog:[],allDailyRecords:{},priceHistory:{},
+};
+
+// ============ 辅助函数 ============
+function safenum(v,fallback){return(typeof v==='number'&&isFinite(v))?v:(fallback||0);}
+function fmt(v){return safenum(v,0).toLocaleString();}
+function emojiOf(pid){let p=PRODUCTS.find(x=>x.id===pid);return p?p.emoji:'📦';}
+function nameOf(pid){let p=PRODUCTS.find(x=>x.id===pid);return p?p.name:pid;}
+function bpOf(pid){let p=PRODUCTS.find(x=>x.id===pid);return p?p.bp:100;}
+
+function initRivals(){
+  G.rivals=[];
+  for(let i=0;i<12;i++)G.rivals.push({name:RIVAL_NAMES[i],power:5+Math.floor(Math.random()*10)});
+}
+
+function refreshMarket(){
+  PRODUCTS.filter(p=>G.productsUnlocked.includes(p)).forEach(p=>{
+    let aB=(G.talents['perm_cost']||0)*0.1;
+    let ae=G.employees.filter(e=>e.eff==='analyst'||e.eff==='all').length;
+    let sf=G.supplierFavor[p.id]||0;
+    let mult=0.75+Math.random()*0.5-ae*0.04-sf*0.01;
+    let cd=G.activeEvents.some(e=>e.eff==='cost')?G.activeEvents.find(e=>e.eff==='cost').v:1;
+    let cu=G.activeEvents.some(e=>e.eff==='cost_up')?G.activeEvents.find(e=>e.eff==='cost_up').v:1;
+    G.marketPrices[p.id]=Math.round(safenum(p.bc)*Math.max(0.5,mult)*(1-aB)*cd*cu);
+    if(!G.priceHistory[p.id])G.priceHistory[p.id]=[];
+    G.priceHistory[p.id].push(G.marketPrices[p.id]);
+    if(G.priceHistory[p.id].length>45)G.priceHistory[p.id].shift();
+  });
+  if(G.activeEvents.some(e=>e.eff==='market')){
+    let m=G.activeEvents.find(e=>e.eff==='market').v;
+    Object.keys(G.marketPrices).forEach(k=>{if(G.marketPrices[k]!=null)G.marketPrices[k]=Math.round(safenum(G.marketPrices[k])*m);});
+  }
+}
+function initMarket(){refreshMarket();}
+
+function baseStock(){
+  let s=30+(G.talents['perm_stock']||0)*10+G.storageExpanded*10;
+  G.employees.forEach(e=>{
+    if(e.eff==='stock')s+=safenum(e.val);
+    if(e.eff==='all')s+=10;
+  });
+  return s;
+}
+function totalStock(){return G.inventory.reduce((s,i)=>s+safenum(i.stock),0);}
+
+function calcLevel(){
+  let th=[0,5000,15000,35000,70000,120000,200000,320000,500000,750000,1000000];
+  for(let i=th.length-1;i>=0;i--){if(G.totalRevenue>=th[i])return i+1;}
+  return 1;
+}
+
+function unlockProducts(){
+  let nl=calcLevel();
+  if(nl>G.level){G.level=nl;G.talentPoints++;addLog('🎊 升级 Lv.'+G.level+'！+1天赋点','warn');}
+  PRODUCTS.forEach(p=>{
+    if(p.tier<=Math.min(nl+1,4)&&!G.productsUnlocked.includes(p)){
+      G.productsUnlocked.push(p);G.talentPoints++;
+      addLog('🔓 解锁 '+p.emoji+' '+p.name+'！+1天赋点','good');
+    }
+  });
+}
+
+// ============ 进货均价追踪 ============
+function getAvgCost(pid){
+  if(!G.inventory)return 0;
+  let items=G.inventory.filter(i=>i.productId===pid&&i.purchaseLog&&i.purchaseLog.length>0);
+  if(items.length===0)return G.marketPrices[pid]||safenum(bpOf(pid));
+  let allLogs=items.flatMap(i=>i.purchaseLog||[]),totalQty=0,totalSpent=0;
+  allLogs.forEach(l=>{totalQty+=safenum(l.qty);totalSpent+=safenum(l.qty)*safenum(l.price);});
+  return totalQty>0?Math.round(totalSpent/totalQty):(G.marketPrices[pid]||safenum(bpOf(pid)));
+}
+
+function getTotalCost(pid){
+  let items=G.inventory.filter(i=>i.productId===pid),total=0;
+  items.forEach(i=>{let avg=getAvgCost(pid);total+=safenum(i.stock)*safenum(avg);});
+  return Math.round(total);
+}
+
+// ============ Canvas 仪表盘 ============
+function drawGauge(cid,val,mx,c1,c2){
+  let c=document.getElementById(cid);if(!c)return;let ctx=c.getContext('2d'),w=c.width,h=c.height;
+  ctx.clearRect(0,0,w,h);let cx=w/2,cy=h-7,r=Math.min(cx-5,cy-5),start=Math.PI,end=0;
+  let pct=Math.min(1,Math.max(0,safenum(val)/mx));
+  ctx.beginPath();ctx.arc(cx,cy,r,start,end);ctx.strokeStyle='#1c2530';ctx.lineWidth=6;ctx.stroke();
+  let grad=ctx.createLinearGradient(0,0,w,0);grad.addColorStop(0,c1);grad.addColorStop(1,c2);
+  ctx.beginPath();ctx.arc(cx,cy,r,start,start+(end-start)*pct);ctx.strokeStyle=grad;ctx.lineWidth=6;ctx.lineCap='round';ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 13px "Segoe UI","Microsoft YaHei"';ctx.textAlign='center';ctx.fillText(Math.round(safenum(val)),cx,cy);
+  let ang=start+(end-start)*pct;ctx.beginPath();ctx.arc(cx+Math.cos(ang)*(r-3),cy+Math.sin(ang)*(r-3),2.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+}
+
+function drawRevenueChart(canvasId,data,w,h,maxDays){
+  let c=document.getElementById(canvasId);if(!c)return;let ctx=c.getContext('2d');ctx.clearRect(0,0,w,h);
+  let d=data.slice(-maxDays);if(d.length<2){ctx.fillStyle='#636e72';ctx.font='10px "Microsoft YaHei"';ctx.textAlign='center';ctx.fillText('推进天数后显示',w/2,h/2);return;}
+  let pad={l:36,r:8,t:14,b:24},pw=w-pad.l-pad.r,ph=h-pad.t-pad.b,mxV=Math.max(...d.map(safenum),500);
+  ctx.strokeStyle='#1c2530';ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){let y=pad.t+ph*(i/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#636e72';ctx.font='7px "Microsoft YaHei"';ctx.textAlign='right';ctx.fillText('¥'+Math.round(mxV*(1-i/4)),pad.l-3,y+3);}
+  let bw=Math.max(4,Math.min(22,pw/d.length-2));
+  d.forEach((v,i)=>{
+    let sv=safenum(v),x=pad.l+i*(pw/d.length)+1,bh=(sv/mxV)*ph;
+    let g=ctx.createLinearGradient(0,pad.t+ph-bh,0,pad.t+ph);
+    g.addColorStop(0,'#2ed573');g.addColorStop(1,'rgba(46,213,115,0.1)');
+    ctx.fillStyle=g;ctx.fillRect(x,pad.t+ph-bh,bw,bh);
+    // 数值标签
+    if(sv>0&&bh>10){
+      ctx.fillStyle='#fff';ctx.font='bold 7px "Microsoft YaHei"';ctx.textAlign='center';
+      let label=sv>=1000?'¥'+(sv/1000).toFixed(1)+'k':'¥'+sv;
+      ctx.fillText(label,x+bw/2,pad.t+ph-bh-2);
+    }
+    if(sv===Math.max(...d.map(safenum))){ctx.fillStyle='#f9ca24';ctx.beginPath();ctx.arc(x+bw/2,pad.t+ph-bh-4,2.5,0,Math.PI*2);ctx.fill();}
+  });
+  let avg=d.reduce((a,b)=>a+safenum(b),0)/d.length,ay=pad.t+ph-(avg/mxV)*ph;
+  ctx.strokeStyle='rgba(255,71,87,0.5)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(pad.l,ay);ctx.lineTo(w-pad.r,ay);ctx.stroke();ctx.setLineDash([]);
+}
+
+function drawMiniPriceChart(canvasId,history,w,h){
+  let c=document.getElementById(canvasId);if(!c)return;let ctx=c.getContext('2d');ctx.clearRect(0,0,w,h);
+  if(!history||history.length<2){ctx.fillStyle='#636e72';ctx.font='8px "Microsoft YaHei"';ctx.textAlign='center';ctx.fillText('数据不足',w/2,h/2);return;}
+  let pad=5,min=Math.min(...history),max=Math.max(...history),range=max-min||1;
+  let first=history[0],last=history[history.length-1];
+  ctx.strokeStyle=last>=first?'#2ed573':'#ff4757';ctx.lineWidth=1.5;ctx.beginPath();
+  history.forEach((v,i)=>{let x=pad+i*((w-pad*2)/(history.length-1)),y=pad+(h-pad*2)*(1-(v-min)/range);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+  ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 8px "Microsoft YaHei"';ctx.textAlign='left';
+  ctx.fillText('¥'+history[history.length-1],pad,h-2);
+}
+
+function drawAllGauges(){
+  drawGauge('gFame',G.fame,100,'#a55eea','#f9ca24');
+  drawGauge('gRep',G.reputation,100,'#1e90ff','#2ed573');
+  let rp=G.rivals.reduce((s,r)=>s+safenum(r.power),0),mp=G.fame+G.reputation*0.5+G.totalRevenue*0.0001;
+  drawGauge('gShare',Math.round((mp/(mp+rp+1))*100),100,'#ff4757','#f9ca24');
+  let c=document.getElementById('chartRev');if(c)drawRevenueChart('chartRev',G.revenueHistory,c.width,c.height,20);
+}
+
+// ============ 总资产 ============
+function calcNetWorth(){
+  let invVal=0;
+  G.inventory.forEach(i=>{let avg=safenum(getAvgCost(i.productId));invVal+=safenum(i.stock)*avg;});
+  return safenum(G.money)+invVal-safenum(G.loan);
+}
+
+function showNetWorth(){
+  let invVal=0,items=[];
+  G.inventory.forEach(i=>{
+    let avg=safenum(getAvgCost(i.productId)),stk=safenum(i.stock),val=stk*avg;
+    invVal+=val;
+    if(stk>0)items.push({emoji:emojiOf(i.productId),name:i.name,stk:stk,avg:avg,val:val});
+  });
+  let cash=safenum(G.money),debt=safenum(G.loan),sal=G.employees.reduce((s,e)=>s+safenum(e.salary),0),nw=calcNetWorth();
+  let rp=G.rivals.reduce((s,r)=>s+safenum(r.power),0),mp=G.fame+G.reputation*0.5+G.totalRevenue*0.0001;
+  let h='<h3>💼 资产总览</h3><div style="line-height:2.2;font-size:11px;background:var(--card);border-radius:8px;padding:10px;margin:8px 0">';
+  h+='<div>💰 现金: <b style="color:var(--gold)">¥'+fmt(G.money)+'</b></div>';
+  h+='<div>📦 库存价值: <b style="color:var(--blue)">¥'+fmt(invVal)+'</b>（'+totalStock()+'件/'+baseStock()+'格）</div>';
+  if(debt>0)h+='<div>🏦 贷款: <b style="color:var(--accent)">-¥'+fmt(debt)+'</b>（剩'+G.loanDaysLeft+'天）</div>';
+  h+='<div style="border-top:1px solid var(--border);margin:4px 0"></div>';
+  h+='<div>💼 <b>净资产: </b><b style="color:var(--gold);font-size:16px">¥'+fmt(nw)+'</b></div>';
+  h+='<div>👥 团队: <b>'+G.employees.length+'人</b> | 日薪总额: <b style="color:var(--accent)">¥'+fmt(sal)+'</b></div>';
+  h+='<div>⚔️ 排名: 共<b>13家</b> | 我方战力: <b style="color:var(--gold)">'+Math.round(mp)+'</b></div>';
+  h+='<div>📅 天数: <b>D'+G.day+'</b> | Lv.<b>'+G.level+'</b> | 状态: <b style="color:'+(G.running?'var(--green)':'var(--accent)')+'">'+(G.running?'经营中':'已破产')+'</b></div>';
+  h+='</div>';
+  if(items.length>0){
+    h+='<h4 style="font-size:10px;color:var(--text2);margin:8px 0 4px">库存明细（按均价计算）</h4>';
+    items.forEach(it=>h+='<div class="info-row"><span>'+it.emoji+' '+it.name+' <small>x'+it.stk+'</small></span><span>均价¥'+fmt(it.avg)+' | <b style="color:var(--blue)">¥'+fmt(it.val)+'</b></span></div>');
+  }
+  openModal(h+'<button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>','large');
+}
+
+// ============ 总资产计算快 ============
+function updateNetWorthDisplay(){
+  let el=document.getElementById('netWorth');if(el)el.textContent='¥'+fmt(calcNetWorth());
+}
+
+// ============ 渲染 ============
+function render(){
+  document.getElementById('day').textContent=G.day;
+  document.getElementById('money').textContent='¥'+fmt(G.money);
+  document.getElementById('dayRev').textContent='¥'+fmt(G.dailyRevenue);
+  document.getElementById('level').textContent='Lv.'+G.level;
+  document.getElementById('stkCur').textContent=totalStock();
+  document.getElementById('stkMax').textContent=baseStock();
+  document.getElementById('tp').textContent=G.talentPoints;
+  document.getElementById('mkpDisp').textContent=safenum(G.globalMarkup).toFixed(1)+'x';
+  document.getElementById('rivalCount').textContent='13家';
+  updateNetWorthDisplay();
+  renderLoanBadge();renderMarket();renderInventory();renderCalendar();
+  renderRivals();renderEmployees();renderTalents();renderBuffs();renderMkt();renderDaySaleDetail();
+  drawAllGauges();
+  updateAutoBtn();
+}
+
+function updateAutoBtn(){
+  let b=document.getElementById('autoBtn');if(!b)return;
+  b.textContent='⏱ 自动:'+(G.autoMode?'开':'关');
+  b.className='btn '+(G.autoMode?'green':'gold');
+}
+
+function renderLoanBadge(){
+  let c=document.getElementById('loanStatus');
+  if(G.loan>0)c.innerHTML='<span class="loan-badge" onclick="showLoan()">🏦 贷¥'+fmt(G.loan)+'('+G.loanDaysLeft+'天)</span>';
+  else c.innerHTML='';
+}
+
+function renderMarket(){
+  let c=document.getElementById('market'),prods=PRODUCTS.filter(p=>G.productsUnlocked.includes(p)),cd=G.activeEvents.some(e=>e.eff==='cost');
+  c.innerHTML=prods.map(p=>{
+    let price=safenum(G.marketPrices[p.id]||p.bc),r=price/safenum(p.bc,1),tc='tf',tl='平稳';
+    if(r>1.15){tc='th';tl='热门↑'}else if(r<0.85){tc='tc';tl='冷门↓'}
+    return '<div class="market-card" onclick="event.stopPropagation();showBuy(\''+p.id+'\')"><div class="emoji">'+p.emoji+'</div><div class="name">'+p.name+'</div><div class="cat">'+(CATMAP[p.cat]||'')+'</div><div class="price">¥'+price+'</div><span class="trend '+tc+'">'+tl+'</span>'+(cd?'<div style="font-size:7px;color:#2ed573">打折!</div>':'')+'</div>';
+  }).join('');
+}
+
+function renderInventory(){
+  let c=document.getElementById('inventory');
+  if(G.inventory.length===0){c.innerHTML='<div style="color:var(--text2);font-size:11px;text-align:center;grid-column:1/-1;padding:20px">暂无商品</div>';return;}
+  let maxS=Math.max(...G.inventory.map(i=>safenum(i.stock)),1);
+  c.innerHTML=G.inventory.map((item,i)=>{
+    let p=PRODUCTS.find(x=>x.id===item.productId),stk=safenum(item.stock),price=safenum(item.price),cost=safenum(item.cost);
+    let avgC=getAvgCost(item.productId);
+    return '<div class="inv-card" onclick="event.stopPropagation();editProd('+i+')"><div class="emoji">'+(p?p.emoji:'📦')+'</div><div class="name">'+safenum(nameOf(item.productId))+'</div><div class="detail">进¥'+fmt(avgC)+' 售¥'+fmt(price)+'</div><div class="stkbar"><div class="stkfill" style="width:'+((stk/maxS)*100)+'%"></div></div><div class="detail">库存 <b>'+fmt(stk)+'</b>件</div><button class="qbtn" onclick="event.stopPropagation();quickRestock('+i+')">+补货</button></div>';
+  }).join('');
+}
+
+function renderDaySaleDetail(){
+  let el=document.getElementById('daySaleDetail');
+  if(!G.dailyLog||G.dailyLog.length===0){el.innerHTML='';return;}
+  let items=G.dailyLog.filter(l=>safenum(l.sold)>0);
+  if(items.length===0){el.innerHTML='';return;}
+  el.innerHTML=items.map(l=>'<span style="font-size:8px;color:var(--text2)">'+(l.emoji||'')+(l.name||'')+' '+safenum(l.sold)+'件 ¥'+fmt(safenum(l.sold)*safenum(l.price))+'</span>').join(' · ');
+}
+
+function getMonthStart(day){
+  // day 1-365, 12 months of ~30 days each
+  let doy=(day-1)%365+1;
+  let months=[0,31,59,90,120,151,181,212,243,273,304,334,365];
+  for(let m=0;m<12;m++){
+    if(doy>months[m]&&doy<=months[m+1])return months[m]+1;
+  }
+  return 1;
+}
+
+function getMonthEnd(day){
+  let doy=(day-1)%365+1;
+  let months=[0,31,59,90,120,151,181,212,243,273,304,334,365];
+  for(let m=0;m<12;m++){
+    if(doy>months[m]&&doy<=months[m+1])return months[m+1];
+  }
+  return 31;
+}
+
+function renderCalendar(){
+  let c=document.getElementById('calendar');
+  let ms=getMonthStart(G.day),me=getMonthEnd(G.day);
+  c.innerHTML='';
+  ['一','二','三','四','五','六','日'].forEach(d=>c.innerHTML+='<div style="text-align:center;color:var(--text2);font-weight:bold">'+d+'</div>');
+  for(let d=ms;d<=me;d++){
+    let doy=(d-1)%365+1,f=FESTIVALS.has(doy),td=d===G.day;
+    c.innerHTML+='<div style="text-align:center;padding:3px 0;border-radius:2px;cursor:pointer;'+(f?'background:var(--accent);color:#fff;font-weight:bold':'')+(td?'border:2px solid var(--gold)':'')+'" onclick="event.stopPropagation();showDayByCalendar('+d+')">'+d+'</div>';
+  }
+}
+
+function getRanking(){
+  let mp=safenum(G.fame)+safenum(G.reputation)*0.5+safenum(G.totalRevenue)*0.0001;
+  let all=[{name:'我的店铺',power:Math.round(mp),isSelf:true}];
+  G.rivals.forEach(r=>all.push({name:r.name,power:safenum(r.power),isSelf:false}));
+  all.sort((a,b)=>b.power-a.power);
+  return all;
+}
+
+function renderRivals(){
+  let all=getRanking(),c=document.getElementById('rivals');
+  c.innerHTML=all.map((r,i)=>{
+    let cl=r.isSelf?'info-row self':'info-row';
+    return '<div class="'+cl+'"><span>'+(r.isSelf?'<span class="rank-badge">#'+(i+1)+'</span>':'<span style="color:var(--text2);min-width:18px;display:inline-block;text-align:center">#'+(i+1)+'</span>')+' '+r.name+'</span><span style="color:'+(r.isSelf?'var(--gold)':'var(--text2)')+';font-size:9px">战力 '+r.power+'</span></div>';
+  }).join('');
+}
+
+function renderEmployees(){
+  let c=document.getElementById('employees');
+  if(G.employees.length===0){c.innerHTML='<div style="color:var(--text2);font-size:9px">暂无员工</div>';}
+  let totalSal=G.employees.reduce((s,e)=>s+safenum(e.salary),0);
+  let hasGM=G.employees.some(e=>e.eff==='gm');
+  document.getElementById('empInfo').textContent=G.employees.length+'人 ¥'+fmt(totalSal)+'/天'+(hasGM?' 🤖托管':'');
+  c.innerHTML='';
+  G.employees.forEach(e=>{
+    let p=EMPLOYEES.find(x=>x.id===e.id);
+    c.innerHTML+='<div class="info-row"><span>'+(p?p.emoji:'')+' <b>'+e.name+'</b></span><span style="font-size:7px">¥'+safenum(e.salary)+'/天</span></div>';
+  });
+}
+
+function renderTalents(){
+  let c=document.getElementById('talents');c.innerHTML='';
+  TALENTS.forEach(t=>{
+    let cur=G.talents[t.eff]||0,can=G.talentPoints>=t.cost&&cur<t.max;
+    c.innerHTML+='<div class="info-row"><span>'+t.emoji+' '+t.name+' <small style="color:var(--text2)">'+cur+'/'+t.max+'</small></span><button class="btn ghost" style="padding:2px 5px;font-size:7px" '+(can?'':'disabled')+' onclick="event.stopPropagation();upTalent(\''+t.id+'\')">'+(cur>=t.max?'满':'升')+'</button></div>';
+  });
+}
+
+function renderBuffs(){
+  let c=document.getElementById('buffs'),all=[...G.activeBuffs,...G.activeEvents];
+  if(all.length===0){c.innerHTML='<span style="color:#333">-</span>';return;}
+  c.innerHTML=all.map(b=>{
+    let d='';switch(b.eff){
+      case'traffic':d='流量x'+safenum(b.v);break;
+      case'rep':d='信誉'+(b.v>=0?'+':'')+safenum(b.v);break;
+      case'cost':d='进价'+Math.round(safenum(b.v)*100)+'折';break;
+      case'cost_up':d='进价+'+Math.round((safenum(b.v)-1)*100)+'%';break;
+      case'shipping':d='运费+¥'+safenum(b.v);break;
+      case'fame':d='知名度+'+safenum(b.v);break;
+      case'market':d='市价'+Math.round(safenum(b.v)*100)+'%';break;
+      case'damage':d='仓库风险';break;
+      case'subsidy':d='补贴¥'+safenum(b.v);break;
+      case'tax':d='税务抽查';break;
+      default:d=b.eff;
+    }
+    let cl=b.type==='good'?'#2ed573':b.type==='bad'?'#ff4757':'#1e90ff';
+    return '<span class="tag" style="background:#1c2530;border-left:2px solid '+cl+'">'+d+'('+b.remainingDays+'天)</span>';
+  }).join('');
+}
+
+function renderMkt(){
+  let c=document.getElementById('mktPanel');
+  let opts=[{id:'social',icon:'📱',name:'社交推广',cost:300,desc:'流量x1.5'},{id:'search',icon:'🔍',name:'搜索竞价',cost:800,desc:'流量x2.0'},{id:'live',icon:'🎥',name:'直播带货',cost:1500,desc:'流量x3.0'},{id:'kol',icon:'🌟',name:'KOL合作',cost:3000,desc:'流量x4.5'}];
+  let disc=G.talents['perm_mkt_disc']||0;
+  c.innerHTML=opts.map(o=>{
+    let perDay=Math.round(safenum(o.cost)*(1-disc*0.15));
+    return '<button class="mkt-btn" onclick="event.stopPropagation();showMktBuy(\''+o.id+'\','+perDay+')">'+o.icon+' '+o.name+' <span class="cost">¥'+perDay+'/天</span><br><small style="color:var(--text2)">'+o.desc+'</small></button>';
+  }).join('');
+}
+
+// ============ 弹窗系统 ============
+function openModal(html,wclass){
+  let o=document.getElementById('mo'),m=document.getElementById('mc');
+  m.innerHTML=html;
+  m.className='modal'+(wclass?' '+wclass:'');
+  o.classList.add('show');
+}
+function closeModal(){document.getElementById('mo').classList.remove('show');}
+document.getElementById('mo').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+// ============ 详情面板（实时刷新） ============
+function showMarketDetail(){
+  render();
+  let h='<h3>📦 进货市场详情</h3><div style="font-size:11px;color:var(--text2);margin-bottom:8px">价格随市场供需实时波动 | 点击商品查看价格走势图</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:5px">';
+  PRODUCTS.filter(p=>G.productsUnlocked.includes(p)).forEach(p=>{
+    let price=safenum(G.marketPrices[p.id]||p.bc),hist=G.priceHistory[p.id]||[],r=price/safenum(p.bc,1),tc='tf',tl='平稳';
+    if(r>1.15){tc='th';tl='热门↑'}else if(r<0.85){tc='tc';tl='冷门↓'}
+    h+='<div class="market-card" onclick="showPriceChart(\''+p.id+'\')" style="padding:8px"><div class="emoji">'+p.emoji+'</div><div class="name">'+p.name+'</div><div class="price">¥'+price+'</div><span class="trend '+tc+'">'+tl+'</span><div class="mini-chart" style="margin-top:3px"><canvas id="mcp_'+p.id+'" width="100" height="40"></canvas></div></div>';
+  });
+  h+='</div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+  setTimeout(function(){
+    PRODUCTS.filter(p=>G.productsUnlocked.includes(p)).forEach(p=>{
+      let c2=document.getElementById('mcp_'+p.id);
+      if(c2)drawMiniPriceChart('mcp_'+p.id,G.priceHistory[p.id]||[],c2.width,c2.height);
+    });
+  },80);
+}
+
+function showPriceChart(pid){
+  let p=PRODUCTS.find(x=>x.id===pid);
+  if(!p){closeModal();return;}
+  let hist=G.priceHistory[pid]||[],cur=safenum(G.marketPrices[pid]||p.bc);
+  let h='<h3>'+p.emoji+' '+p.name+' 价格走势图</h3><div style="font-size:12px;margin:6px 0">当前: <b style="color:var(--gold);font-size:16px">¥'+cur+'</b> | 底价: <b>¥'+safenum(p.bc)+'</b> | 共'+hist.length+'个数据点</div><div style="background:var(--card);border-radius:8px;padding:8px"><canvas id="pcCanvas" width="580" height="200" style="max-width:100%"></canvas></div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+  setTimeout(function(){
+    let pc=document.getElementById('pcCanvas');
+    if(!pc||hist.length<2)return;
+    let ctx=pc.getContext('2d'),w=pc.width,h=pc.height;
+    let min=Math.min(...hist),max=Math.max(...hist),range=max-min||1,pad=40;
+    ctx.clearRect(0,0,w,h);
+    // 网格线
+    ctx.strokeStyle='#1c2530';ctx.lineWidth=0.5;
+    for(let i=0;i<=4;i++){
+      let y=pad+(h-pad*2)*(i/4);
+      ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();
+      ctx.fillStyle='#636e72';ctx.font='9px "Microsoft YaHei"';ctx.textAlign='right';
+      ctx.fillText('¥'+Math.round(max-(range*i/4)),pad-5,y+3);
+    }
+    // 填充区域
+    ctx.beginPath();
+    hist.forEach((v,i)=>{
+      let x=pad+i*((w-pad*2)/(Math.max(hist.length-1,1)));
+      let y=pad+(h-pad*2)*(1-(v-min)/range);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
+    let lastX=pad+(hist.length-1)*((w-pad*2)/(Math.max(hist.length-1,1)));
+    ctx.lineTo(lastX,pad+(h-pad*2));
+    ctx.lineTo(pad,pad+(h-pad*2));
+    ctx.closePath();
+    ctx.fillStyle='rgba(46,213,115,0.08)';ctx.fill();
+    // 趋势线
+    ctx.beginPath();
+    hist.forEach((v,i)=>{
+      let x=pad+i*((w-pad*2)/(Math.max(hist.length-1,1)));
+      let y=pad+(h-pad*2)*(1-(v-min)/range);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle='#2ed573';ctx.lineWidth=2;ctx.stroke();
+    // 数据点
+    hist.forEach((v,i)=>{
+      let x=pad+i*((w-pad*2)/(Math.max(hist.length-1,1)));
+      let y=pad+(h-pad*2)*(1-(v-min)/range);
+      ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#2ed573';ctx.fill();
+    });
+    // 最新值标注
+    let lx=pad+(hist.length-1)*((w-pad*2)/(Math.max(hist.length-1,1)));
+    ctx.fillStyle='#fff';ctx.font='bold 10px "Microsoft YaHei"';ctx.textAlign='center';
+    ctx.fillText('¥'+hist[hist.length-1],lx,pad-8);
+  },80);
+}
+
+function showInventoryDetail(){
+  render();
+  let h='<h3>🏬 店铺商品详情</h3><div style="font-size:10px;color:var(--text2);margin-bottom:8px">进货价显示历史进货均价（参考股票均价显示）</div>';
+  h+=document.getElementById('inventory').outerHTML;
+  h+='<button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+}
+
+function showRivalDetail(){
+  render();
+  let all=getRanking();
+  let myRank=all.findIndex(r=>r.isSelf)+1;
+  let h='<h3>⚔️ 排名榜单（共13家）</h3><div style="font-size:11px;margin-bottom:8px">我方排名: <b style="color:var(--gold);font-size:14px">#'+myRank+'</b></div>';
+  h+='<table class="rank-table"><tr style="color:var(--text2)"><th class="rnk">#</th><th>店铺</th><th>战力</th></tr>';
+  all.forEach((r,i)=>{
+    let cl=r.isSelf?'my-row':'';
+    h+='<tr class="'+cl+'"><td class="rnk">'+(r.isSelf?'<b style="color:var(--accent)">'+(i+1)+'</b>':(i+1))+'</td><td>'+(r.isSelf?'<b>我的店铺</b>':r.name)+'</td><td style="color:'+(r.isSelf?'var(--gold)':'var(--text2)')+'">'+r.power+'</td></tr>';
+  });
+  h+='</table><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+}
+
+function showMktDetail(){
+  render();
+  openModal('<h3>📢 营销推广</h3>'+document.getElementById('mktPanel').outerHTML+'<hr style="border-color:#1c2530;margin:10px 0"><h4 style="font-size:11px;color:var(--text2)">当前Buff</h4>'+document.getElementById('buffs').outerHTML+'<button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>');
+}
+
+function showTalentDetail(){
+  render();
+  let h='<h3>🔮 天赋（点:'+G.talentPoints+'）</h3><div style="font-size:10px;color:var(--text2);margin-bottom:8px">当前天赋加成效果</div>';
+  TALENTS.forEach(t=>{
+    let cur=G.talents[t.eff]||0;
+    let effDesc='';
+    switch(t.eff){
+      case'perm_cost':effDesc='进价降低 <b style="color:var(--green)">'+(cur*t.val*100).toFixed(0)+'%</b>';break;
+      case'perm_traffic':effDesc='流量增加 <b style="color:var(--green)">+'+(cur*t.val*100).toFixed(0)+'%</b>';break;
+      case'perm_price':effDesc='售价上限 <b style="color:var(--green)">+'+(cur*t.val*100).toFixed(0)+'%</b>';break;
+      case'perm_stock':effDesc='库存上限 <b style="color:var(--green)">+'+cur*t.val+'</b>格';break;
+      case'perm_loyalty':effDesc='复购率 <b style="color:var(--green)">+'+(cur*t.val*100).toFixed(0)+'%</b>';break;
+      case'perm_mkt_disc':effDesc='营销费用 <b style="color:var(--green)">-'+(cur*t.val*100).toFixed(0)+'%</b>';break;
+      default:effDesc='-';
+    }
+    let can=G.talentPoints>=t.cost&&cur<t.max;
+    h+='<div class="info-row"><span>'+t.emoji+' '+t.name+' <small>'+cur+'/'+t.max+'</small></span><div><span style="font-size:8px;color:var(--text2)">'+effDesc+'</span> <button class="btn ghost" style="padding:2px 5px;font-size:7px" '+(can?'':'disabled')+' onclick="upTalent(\''+t.id+'\');showTalentDetail();">'+(cur>=t.max?'满':'升')+'</button></div></div>';
+  });
+  h+='<button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h);
+}
+
+function showEmpDetail(){
+  render();
+  let h='<h3>👥 团队详情</h3><div style="font-size:10px;color:var(--text2);margin-bottom:8px">员工Buff加成效果</div>';
+  if(G.employees.length===0){
+    h+='<div style="color:var(--text2);padding:20px;text-align:center">暂无员工</div>';
+  } else {
+    // 汇总buff
+    let buffs=[];
+    let stockBonus=0,repBonus=0,trafficBonus=0,analystCount=0,designer=false,hasGM=false;
+    G.employees.forEach(e=>{
+      switch(e.eff){
+        case'stock':stockBonus+=safenum(e.val);break;
+        case'rep':repBonus+=safenum(e.val);break;
+        case'traffic':case'analyst':analystCount++;break;
+        case'design':designer=true;break;
+        case'gm':hasGM=true;break;
+        case'all':stockBonus+=10;trafficBonus+=0.2;break;
+      }
+    });
+    if(stockBonus>0)buffs.push('库存上限 <b style="color:var(--green)">+'+stockBonus+'</b>');
+    if(repBonus>0)buffs.push('信誉恢复 <b style="color:var(--green)">+'+repBonus.toFixed(1)+'/天</b>');
+    if(analystCount>0)buffs.push('进价降低 <b style="color:var(--green)">约'+(analystCount*4)+'%</b>（数据分析师）');
+    if(designer)buffs.push('售价提升 <b style="color:var(--green)">+10%</b>（美工设计师）');
+    if(hasGM)buffs.push('<b style="color:var(--gold)">全自动托管经营</b>（总经理）');
+    // 人才列表
+    h+='<div style="margin-bottom:8px">';
+    G.employees.forEach(e=>{
+      let p=EMPLOYEES.find(x=>x.id===e.id);
+      let detail='';
+      if(p){
+        switch(p.eff){
+          case'stock':detail='库存上限+'+safenum(p.val);break;
+          case'rep':detail='信誉+'+safenum(p.val)+'/天';break;
+          case'traffic':detail='每日流量x1'+safenum(p.val).toFixed(1);break;
+          case'analyst':detail='进货价降低（~4%/人）';break;
+          case'design':detail='售价提升+10%';break;
+          case'all':detail='库存+10 流量x1.2';break;
+          case'gm':detail='全自动托管';break;
+        }
+      }
+      h+='<div class="info-row"><span>'+(p?p.emoji:'')+' <b>'+e.name+'</b></span><span style="font-size:8px;color:var(--text2)">'+detail+' | ¥'+safenum(e.salary)+'/天</span></div>';
+    });
+    h+='</div>';
+    h+='<h4 style="font-size:10px;color:var(--gold);margin-top:8px">当前总Buff</h4><div class="buff-list">';
+    if(buffs.length>0)buffs.forEach(b=>h+='<div class="b-line">'+b+'</div>');
+    else h+='<div class="b-line" style="color:var(--text2)">暂无加成</div>';
+    h+='</div>';
+  }
+  h+='<button class="btn ghost" onclick="event.stopPropagation();showHire()" style="width:100%;margin-top:8px">➕ 招聘新员工</button>';
+  h+='<button class="btn ghost" onclick="closeModal()" style="margin-top:6px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+}
+
+function showLogDetail(){
+  render();
+  openModal('<h3>📋 经营日志</h3>'+document.getElementById('log').outerHTML+'<button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>','large');
+}
+
+function showCalendarDetail(){
+  render();
+  let curMonth='';
+  let ms=getMonthStart(G.day);
+  let monthNames=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  let months=[0,31,59,90,120,151,181,212,243,273,304,334,365];
+  let doy=(G.day-1)%365+1;
+  for(let m=0;m<12;m++){if(doy>months[m]&&doy<=months[m+1]){curMonth=monthNames[m];break;}}
+  openModal('<h3>📅 促销日历 - '+curMonth+'</h3>'+document.getElementById('calendar').outerHTML+'<div style="font-size:9px;color:var(--text2);margin-top:4px">点击日期查看当天经营记录 | 每月自动更新</div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>','large');
+}
+
+function showGaugeDetail(type){
+  if(type==='fame'){
+    openModal('<h3>⭐ 知名度</h3><div style="font-size:12px;margin:10px 0">当前: <b style="color:var(--gold);font-size:18px">'+G.fame+'</b>/100</div><div style="font-size:10px;color:var(--text2)">影响每日进店流量基数。通过销售、营销、事件提升。</div><div style="margin-top:10px;font-size:10px">近30天趋势:</div><div style="font-size:9px;color:var(--text2);line-height:1.6">'+(G.fameHistory.length>0?G.fameHistory.slice(-15).join(' → '):'暂无数据')+'</div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>');
+  }else if(type==='rep'){
+    openModal('<h3>💎 信誉</h3><div style="font-size:12px;margin:10px 0">当前: <b style="color:var(--gold);font-size:18px">'+G.reputation+'</b>/100</div><div style="font-size:10px;color:var(--text2)">影响销量倍率与退货率。通过客服维护、好评提升。</div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>');
+  }else if(type==='share'){
+    let rp=G.rivals.reduce((s,r)=>s+safenum(r.power),0),mp=safenum(G.fame)+safenum(G.reputation)*0.5+safenum(G.totalRevenue)*0.0001;
+    let share=Math.round((mp/(mp+rp+1))*100);
+    openModal('<h3>📈 市场份额</h3><div style="font-size:12px;margin:10px 0">当前: <b style="color:var(--gold);font-size:18px">'+share+'%</b></div><div style="font-size:10px;color:var(--text2)">基于知名度、信誉、营收综合计算，与12家对手争夺市场份额。</div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>');
+  }
+}
+
+function showBigChart(){
+  let d=G.revenueHistory.slice(-60);
+  let h='<h3>📉 营收趋势（近'+d.length+'天）</h3><div style="background:var(--card);border-radius:8px;padding:8px"><canvas id="bigChartCanvas" width="650" height="280" style="max-width:100%"></canvas></div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+  setTimeout(function(){
+    let c=document.getElementById('bigChartCanvas');
+    if(!c||d.length<2)return;
+    let ctx=c.getContext('2d'),w=c.width,h=c.height;
+    let pad={l:50,r:20,t:30,b:35},pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;
+    let mxV=Math.max(...d.map(safenum),500);
+    ctx.clearRect(0,0,w,h);
+    // 网格
+    ctx.strokeStyle='#1c2530';ctx.lineWidth=0.5;
+    for(let i=0;i<=5;i++){
+      let y=pad.t+ph*(i/5);
+      ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+      ctx.fillStyle='#636e72';ctx.font='9px "Microsoft YaHei"';ctx.textAlign='right';
+      ctx.fillText('¥'+Math.round(mxV*(1-i/5)),pad.l-5,y+3);
+    }
+    let bw=Math.max(5,Math.min(28,pw/d.length-2));
+    d.forEach((v,i)=>{
+      let sv=safenum(v),x=pad.l+i*(pw/d.length)+1,bh=(sv/mxV)*ph;
+      let g=ctx.createLinearGradient(0,pad.t+ph-bh,0,pad.t+ph);
+      g.addColorStop(0,'#2ed573');g.addColorStop(1,'rgba(46,213,115,0.05)');
+      ctx.fillStyle=g;ctx.fillRect(x,pad.t+ph-bh,bw,bh);
+      // 所有柱子数据标签
+      if(sv>0&&bh>12){
+        ctx.fillStyle='#fff';ctx.font='bold 8px "Microsoft YaHei"';ctx.textAlign='center';
+        let label=sv>=1000?'¥'+(sv/1000).toFixed(1)+'k':'¥'+sv;
+        ctx.fillText(label,x+bw/2,pad.t+ph-bh-2);
+      }
+    });
+    // 均值线
+    let avg=d.reduce((a,b)=>a+safenum(b),0)/d.length,ay=pad.t+ph-(avg/mxV)*ph;
+    ctx.strokeStyle='rgba(255,71,87,0.6)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(pad.l,ay);ctx.lineTo(w-pad.r,ay);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#ff4757';ctx.font='9px "Microsoft YaHei"';ctx.textAlign='left';
+    ctx.fillText('均值 ¥'+Math.round(avg),w-pad.r-70,ay-4);
+  },80);
+}
+
+function showDayDetail(){
+  let items=G.dailyLog.filter(l=>safenum(l.sold)>0);
+  if(items.length===0){openModal('<h3>📊 今日营收 - D'+G.day+'</h3><div style="color:var(--text2);padding:20px;text-align:center">今日暂无销售</div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>');return;}
+  let total=items.reduce((s,l)=>s+safenum(l.sold)*safenum(l.price),0);
+  let h='<h3>📊 今日营收明细 - D'+G.day+'</h3><div style="font-size:14px;margin:6px 0">总营收: <b style="color:var(--gold);font-size:18px">¥'+fmt(total)+'</b></div>';
+  h+='<table style="width:100%;font-size:10px;border-collapse:collapse"><tr style="color:var(--text2)"><th style="text-align:left">商品</th><th>销量</th><th>单价</th><th>小计</th></tr>';
+  items.forEach(l=>{
+    h+='<tr style="border-bottom:1px solid var(--border)"><td>'+safenum(l.emoji||'')+' '+safenum(l.name||'')+'</td><td style="text-align:center">'+safenum(l.sold)+'件</td><td style="text-align:center">¥'+safenum(l.price)+'</td><td style="text-align:right;color:var(--green)">¥'+fmt(safenum(l.sold)*safenum(l.price))+'</td></tr>';
+  });
+  h+='</table><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+}
+
+// ============ 核心逻辑 ============
+function addLog(msg,cl){
+  let l=document.getElementById('log'),t=new Date().toTimeString().slice(0,5);
+  l.innerHTML='<div class="log '+cl+'"><span class="dt">'+t+'</span><span>'+msg+'</span></div>'+l.innerHTML;
+}
+function sellPrice(pid){
+  let p=PRODUCTS.find(x=>x.id===pid);if(!p)return 0;
+  let design=(G.employees.some(e=>e.eff==='design'||e.eff==='all'))?0.1:0;
+  let brand=(G.talents['perm_price']||0)*0.15;
+  return Math.round(safenum(p.bp)*G.globalMarkup*(1+design+brand));
+}
+
+function showBuy(pid){
+  let p=PRODUCTS.find(x=>x.id===pid);if(!p)return;
+  let price=safenum(G.marketPrices[p.id]||p.bc);
+  let stkAvail=baseStock()-totalStock(),maxBuy=Math.min(99,Math.floor(safenum(G.money)/price),Math.max(1,stkAvail));
+  if(maxBuy<=0){openModal('<h3>'+p.emoji+' '+p.name+'</h3><div style="color:var(--accent);padding:20px;text-align:center">库存已满或资金不足</div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>');return;}
+  let h='<h3>'+p.emoji+' '+p.name+'</h3><div style="font-size:12px;margin:6px 0">进货价: <b style="color:var(--gold);font-size:16px">¥'+price+'</b> | 现货上限: '+stkAvail+'件 | 资金: ¥'+fmt(G.money)+'</div><div style="margin:10px 0"><label>数量: <b id="buyQtyLabel">1</b></label><br><input type="range" min="1" max="'+maxBuy+'" value="1" id="buyQty" style="width:100%;height:30px" oninput="document.getElementById(\'buyQtyLabel\').textContent=this.value;document.getElementById(\'buyTotal\').textContent=\'总价: ¥\'+('+price+'*this.value).toLocaleString()"></div><div style="font-size:12px;margin:8px 0;color:var(--gold)" id="buyTotal">总价: ¥'+fmt(price)+'</div><div style="display:flex;gap:6px"><button class="btn primary" onclick="doBuy(\''+pid+'\','+price+')" style="flex:1;padding:8px">进货</button><button class="btn ghost" onclick="closeModal()" style="flex:1;padding:8px">取消</button></div>';
+  openModal(h);
+}
+
+function doBuy(pid,price){
+  let qtyEl=document.getElementById('buyQty'),qty=qtyEl?parseInt(qtyEl.value)||1:1;
+  let total=qty*safenum(price);if(safenum(G.money)<total){addLog('资金不足','bad');closeModal();render();return;}
+  let stkAvail=baseStock()-totalStock();if(qty>stkAvail){qty=stkAvail;total=qty*safenum(price);}
+  if(qty<=0){closeModal();return;}
+  G.money-=total;
+  let exist=G.inventory.find(i=>i.productId===pid);
+  let sp=sellPrice(pid);
+  if(exist){
+    exist.stock+=qty;
+    exist.cost=safenum(price);
+    exist.price=safenum(sp);
+    if(!exist.purchaseLog)exist.purchaseLog=[];
+    exist.purchaseLog.push({qty:qty,price:safenum(price),day:G.day});
+  } else {
+    G.inventory.push({productId:pid,name:nameOf(pid),stock:qty,cost:safenum(price),price:safenum(sp),purchaseLog:[{qty:qty,price:safenum(price),day:G.day}]});
+  }
+  // 供应商好感度
+  G.supplierFavor[pid]=(G.supplierFavor[pid]||0)+qty*0.5;
+  addLog('进货 '+nameOf(pid)+' x'+qty+' -¥'+fmt(total),'info');
+  closeModal();render();
+}
+
+function editProd(idx){
+  let item=G.inventory[idx];if(!item)return;
+  let p=PRODUCTS.find(x=>x.id===item.productId);
+  let stk=safenum(item.stock),price=safenum(item.price),avgC=getAvgCost(item.productId);
+  let totalVal=stk*avgC,totalRev=stk*price;
+  let h='<h3>'+(p?p.emoji:'📦')+' '+safenum(nameOf(item.productId))+'</h3>';
+  h+='<div style="line-height:2;font-size:11px;background:var(--card);border-radius:8px;padding:10px;margin:8px 0">';
+  h+='<div>📊 库存: <b>'+stk+'件</b></div>';
+  h+='<div>📥 均价（历史进货）: <b style="color:var(--blue)">¥'+fmt(avgC)+'/件</b></div>';
+  h+='<div>📤 当前售价: <b style="color:var(--gold)">¥'+fmt(price)+'/件</b></div>';
+  h+='<div>💼 库存总成本: <b style="color:var(--blue)">¥'+fmt(totalVal)+'</b></div>';
+  h+='<div>💰 库存总价值（售价）: <b style="color:var(--gold)">¥'+fmt(totalRev)+'</b></div>';
+  h+='<div style="border-top:1px solid var(--border);margin:4px 0"></div>';
+  h+='<div>📈 潜在毛利: <b style="color:var(--green)">¥'+fmt(totalRev-totalVal)+'</b></div>';
+  // 进货历史
+  let allLogs=G.inventory.filter(i=>i.productId===item.productId).flatMap(i=>i.purchaseLog||[]);
+  if(allLogs.length>0){
+    h+='<div style="margin-top:6px;font-size:9px;color:var(--text2)">进货记录（最近10条）:</div>';
+    allLogs.slice(-10).reverse().forEach(l=>h+='<div style="font-size:8px;color:var(--text2)">D'+safenum(l.day)+' ×'+safenum(l.qty)+'件 ¥'+safenum(l.price)+'/件</div>');
+  }
+  h+='</div>';
+  h+='<div style="display:flex;gap:6px"><button class="btn green" onclick="quickRestock('+idx+');closeModal();" style="flex:1;padding:8px">以当前价补货</button><button class="btn ghost" onclick="closeModal()" style="flex:1;padding:8px">关闭</button></div>';
+  openModal(h);
+}
+
+function quickRestock(idx){
+  let item=G.inventory[idx];if(!item)return;
+  let pid=item.productId,price=safenum(G.marketPrices[pid]||safenum(bpOf(pid)));
+  let stkAvail=baseStock()-totalStock(),maxBuy=Math.min(20,Math.floor(safenum(G.money)/price),Math.max(1,stkAvail));
+  if(maxBuy<=0){addLog('库存已满或资金不足，无法补货','bad');render();return;}
+  let qty=Math.min(10,maxBuy);
+  let total=qty*price;
+  G.money-=total;
+  item.stock+=qty;item.cost=safenum(price);
+  if(!item.purchaseLog)item.purchaseLog=[];
+  item.purchaseLog.push({qty:qty,price:price,day:G.day});
+  addLog('补货 '+nameOf(pid)+' x'+qty+' -¥'+fmt(total),'info');
+  render();
+}
+
+function batchPrice(){
+  let v=parseFloat(prompt('全局利润率倍率（当前'+safenum(G.globalMarkup).toFixed(1)+'x）:','1.5'))||1.5;
+  v=Math.max(0.3,Math.min(10,v));G.globalMarkup=v;
+  G.inventory.forEach(i=>i.price=sellPrice(i.productId));
+  render();addLog('利润率调整为 '+v.toFixed(1)+'x','warn');
+}
+
+// ============ 下一日 ============
+function nextDay(){
+  if(!G.running)return;
+  // 总经理托管
+  if(G.employees.some(e=>e.eff==='gm'))gmAutoManage();
+  // 到期buff和事件
+  G.activeBuffs=G.activeBuffs.filter(b=>{b.remainingDays--;return b.remainingDays>0;});
+  G.activeEvents=G.activeEvents.filter(e=>{e.remainingDays--;return e.remainingDays>0;});
+  // 随机事件
+  if(Math.random()<0.35&&!G.activeEvents.some(e=>e.eff==='tax')){let ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];G.activeEvents.push({...ev,remainingDays:ev.d});addLog('⚡ '+ev.t,(ev.type||'neutral'));}
+  // 员工效果
+  let repBonus=G.employees.filter(e=>e.eff==='rep').reduce((s,e)=>s+safenum(e.val),0);
+  G.reputation=Math.min(100,Math.max(0,G.reputation+repBonus));
+  // 销售
+  G.dailyRevenue=0;G.dailyLog=[];G.allDailyRecords[G.day]={sales:[],events:[],revenue:0};
+  let trafficBase=10+Math.floor(safenum(G.fame)*0.5);
+  let trafficMult=1+(G.talents['perm_traffic']||0)*0.2;
+  let mktBuff=G.activeBuffs.filter(b=>b.eff==='traffic').reduce((s,b)=>s*b.v,1);
+  let evBuff=G.activeEvents.filter(e=>e.eff==='traffic').reduce((s,e)=>s*e.v,1);
+  let traffic=Math.floor(trafficBase*trafficMult*mktBuff*evBuff);
+  let loyalty=0.05+(G.talents['perm_loyalty']||0)*0.05;
+  G.inventory.forEach(item=>{
+    let p=PRODUCTS.find(x=>x.id===item.productId);if(!p||!safenum(item.stock)||!safenum(item.price))return;
+    let demand=Math.min(safenum(item.stock),Math.floor(traffic*(p.tier<=2?0.12:0.06)*(safenum(G.reputation)/50)*loyalty*10));
+    if(demand<=0)return;
+    let sold=Math.min(demand,safenum(item.stock));
+    item.stock-=sold;
+    let revenue=sold*safenum(item.price);
+    G.money+=revenue;G.dailyRevenue+=revenue;G.totalRevenue+=revenue;G.totalSold+=sold;
+    if(sold>0){
+      G.fame=Math.min(100,safenum(G.fame)+sold*0.3);
+      G.reputation=Math.min(100,safenum(G.reputation)+0.1);
+      G.dailyLog.push({emoji:p.emoji,name:item.name||p.name,sold:sold,price:safenum(item.price),productId:item.productId});
+    }
+  });
+  // 事件影响
+  G.activeEvents.forEach(e=>{
+    if(e.eff==='fame')G.fame=Math.min(100,Math.max(0,safenum(G.fame)+safenum(e.v)));
+    if(e.eff==='rep')G.reputation=Math.min(100,Math.max(0,safenum(G.reputation)+safenum(e.v)));
+    if(e.eff==='subsidy'){let sub=safenum(G.totalSold)*safenum(e.v);G.money+=sub;G.dailyRevenue+=sub;addLog('政府补贴 +¥'+fmt(sub),'good');}
+    if(e.eff==='damage'){G.inventory.forEach(i=>i.stock=Math.floor(safenum(i.stock)*(1-safenum(e.v))));addLog('仓库损坏！20%库存损失','bad');}
+    if(e.eff==='shipping'){let fee=G.dailyLog.reduce((s,l)=>s+safenum(l.sold),0)*safenum(e.v);G.money-=fee;G.dailyRevenue-=fee;if(fee>0)addLog('物流附加费 -¥'+fmt(fee),'bad');}
+  });
+  G.bestDay=Math.max(G.bestDay,G.dailyRevenue);
+  G.revenueHistory.push(G.dailyRevenue);
+  G.fameHistory.push(G.fame);
+  // 对手成长
+  G.rivals.forEach(r=>{r.power=safenum(r.power)+Math.floor(Math.random()*3);});
+  if(G.day%10===0&&G.rivals.length<12){G.rivals.push({name:RIVAL_NAMES[G.rivals.length],power:10+Math.floor(Math.random()*10)});}
+  // 贷款利息
+  if(G.loan>0){
+    let interest=Math.round(safenum(G.loan)*G.loanInterestRate);
+    G.money-=interest;G.loanDaysLeft--;
+    if(G.loanDaysLeft<=0){addLog('贷款到期！自动还本金 ¥'+fmt(G.loan),'bad');G.money-=G.loan;if(G.money<0)G.money=0;G.loan=0;G.loanDaysLeft=0;}
+    else addLog('贷款利息 -¥'+fmt(interest)+' ('+G.loanDaysLeft+'天后到期)','warn');
+  }
+  // 破产检测
+  if(G.money<=0&&G.loan<=0){
+    G.running=false;addLog('💀 破产了！资金耗尽……点击贷款可复活','bad');
+    stopAuto();
+    if(confirm('破产了！要申请紧急贷款 ¥5000 复活吗？')){G.loan=5000;G.loanDaysLeft=30;G.money=5000;G.running=true;addLog('紧急贷款 ¥5000！活过来了','warn');}
+  }
+  G.day++;unlockProducts();refreshMarket();
+  // 自动清理无效库存
+  G.inventory=G.inventory.filter(i=>safenum(i.stock)>0);
+  render();
+  // 成就
+  ACHIEVEMENTS.forEach(a=>{if(!G.achievements.has(a.id)&&a.c(G)){G.achievements.add(a.id);addLog('🏅 成就解锁: '+a.name,'warn');}});
+}
+
+function gmAutoManage(){
+  if(G.talentPoints>0){
+    TALENTS.forEach(t=>{let cur=G.talents[t.eff]||0;while(G.talentPoints>=t.cost&&cur<t.max){G.talentPoints-=t.cost;G.talents[t.eff]=(cur||0)+1;cur++;}});
+  }
+  let stkAvail=baseStock()-totalStock();
+  if(stkAvail>5&&G.money>1000){
+    PRODUCTS.filter(p=>G.productsUnlocked.includes(p)).sort((a,b)=>(G.marketPrices[a.id]||a.bc)-(G.marketPrices[b.id]||b.bc)).slice(0,3).forEach(p=>{
+      let price=safenum(G.marketPrices[p.id]||p.bc);
+      let buyQ=Math.min(5,stkAvail,Math.floor(safenum(G.money)/price/3));
+      if(buyQ<=0)return;
+      let total=buyQ*price;G.money-=total;stkAvail-=buyQ;
+      let sp=sellPrice(p.id);
+      let exist=G.inventory.find(i=>i.productId===p.id);
+      if(exist){
+        exist.stock+=buyQ;exist.cost=safenum(price);exist.price=safenum(sp);
+        if(!exist.purchaseLog)exist.purchaseLog=[];
+        exist.purchaseLog.push({qty:buyQ,price:price,day:G.day});
+      } else {
+        G.inventory.push({productId:p.id,name:p.name,stock:buyQ,cost:safenum(price),price:safenum(sp),purchaseLog:[{qty:buyQ,price:price,day:G.day}]});
+      }
+    });
+  }
+}
+
+// ============ 自动模式 ============
+function toggleAuto(){
+  G.autoMode=!G.autoMode;
+  if(G.autoMode)startAuto();else stopAuto();
+  updateAutoBtn();
+}
+function startAuto(){if(G.autoTimer)return;G.autoTimer=setInterval(function(){if(!G.autoMode||!G.running){stopAuto();return;}nextDay();},1200);}
+function stopAuto(){if(G.autoTimer){clearInterval(G.autoTimer);G.autoTimer=null;}G.autoMode=false;updateAutoBtn();}
+
+// ============ 贷款 ============
+function showLoan(){
+  let h='<h3>🏦 银行贷款</h3>';
+  if(G.loan>0)h+='<div style="background:var(--card);padding:10px;border-radius:8px;margin:8px 0;font-size:11px">当前贷款: <b style="color:var(--accent)">¥'+fmt(G.loan)+'</b> | 剩余<b>'+G.loanDaysLeft+'天</b> | 日利率 '+G.loanInterestRate*100+'%<br>利息: ¥'+fmt(Math.round(safenum(G.loan)*G.loanInterestRate))+'/天</div><button class="btn gold" onclick="repayLoan()" style="width:100%;margin:4px 0;padding:8px">预付还贷（需 ¥'+fmt(G.loan)+'）</button>';
+  else h+='<div style="color:var(--text2)">当前无贷款</div>';
+  h+='<div style="display:flex;gap:6px;margin:8px 0">';
+  [2000,5000,10000,20000].forEach(amt=>h+='<button class="btn ghost" onclick="takeLoan('+amt+')" style="flex:1;padding:8px">¥'+fmt(amt)+'<br><small>30天</small></button>');
+  h+='</div><div style="font-size:9px;color:var(--text2)">日利率1.5%，30天到期自动还本。可提前还款。</div><button class="btn ghost" onclick="closeModal()" style="margin-top:6px;width:100%;padding:8px">关闭</button>';
+  openModal(h);
+}
+function takeLoan(amt){if(G.loan>0){alert('请先还清当前贷款');return;}G.loan=amt;G.loanDaysLeft=30;G.money+=amt;addLog('贷款 +¥'+fmt(amt)+'（30天期）','warn');closeModal();render();}
+function repayLoan(){let l=safenum(G.loan);if(l<=0)return;if(safenum(G.money)<l){alert('资金不足');return;}G.money-=l;G.loan=0;G.loanDaysLeft=0;addLog('贷款已还清','good');closeModal();render();}
+
+// ============ 扩容 ============
+function expandStorage(){
+  let cost=800;
+  if(safenum(G.money)<cost){alert('资金不足');return;}
+  G.money-=cost;G.storageExpanded++;addLog('仓库扩容 +10格 -¥800','info');render();
+}
+
+// ============ 营销 ============
+function showMktBuy(id,costPerDay){
+  let opts={social:'社交推广',search:'搜索竞价',live:'直播带货',kol:'KOL合作'};
+  let mults={social:1.5,search:2.0,live:3.0,kol:4.5};
+  let h='<h3>📢 '+opts[id]+'</h3><div style="font-size:11px">费用: <b style="color:var(--gold)">¥'+costPerDay+'/天</b> | 效果: <b style="color:var(--green)">流量x'+mults[id]+'</b></div><div style="margin:10px 0"><label>持续天数: <b id="mktDayLabel">1</b></label><br><input type="range" min="1" max="7" value="1" id="mktDays" style="width:100%;height:30px" oninput="document.getElementById(\'mktDayLabel\').textContent=this.value;document.getElementById(\'mktTotalLabel\').textContent=\'总费用: ¥\'+('+costPerDay+'*this.value).toLocaleString()"></div><div style="font-size:12px;margin:8px 0;color:var(--gold)" id="mktTotalLabel">总费用: ¥'+fmt(costPerDay)+'</div><div style="display:flex;gap:6px"><button class="btn primary" onclick="doMkt(\''+id+'\','+costPerDay+','+mults[id]+')" style="flex:1;padding:8px">投放</button><button class="btn ghost" onclick="closeModal()" style="flex:1;padding:8px">取消</button></div>';
+  openModal(h);
+}
+function doMkt(id,costPerDay,mult){
+  let dayEl=document.getElementById('mktDays'),days=dayEl?parseInt(dayEl.value)||1:1;
+  let total=costPerDay*days;
+  if(safenum(G.money)<total){alert('资金不足');return;}
+  G.money-=total;
+  G.activeBuffs.push({eff:'traffic',v:mult,name:id,remainingDays:days,type:'good'});
+  addLog('营销投放 '+days+'天 -¥'+fmt(total),'info');
+  closeModal();render();
+}
+
+// ============ 招聘 ============
+function showHire(){
+  let empCount={};
+  G.employees.forEach(e=>empCount[e.eff]=(empCount[e.eff]||0)+1);
+  let hasGM=G.employees.some(e=>e.eff==='gm');
+  let h='<h3>👥 招聘员工</h3><div style="font-size:10px;color:var(--text2);margin-bottom:8px">基础岗不限 | 分析师/设计师≤3 | 运营经理≤2 | 总经理≤1</div>';
+  EMPLOYEES.forEach(e=>{
+    let cur=empCount[e.eff]||0,limit=99,locked=false;
+    if(e.type==='mid')limit=3;else if(e.type==='senior')limit=2;else if(e.type==='executive')limit=1;
+    if(cur>=limit)locked=true;
+    if(e.eff==='gm'&&hasGM)locked=true;
+    h+='<div class="info-row"><span>'+e.emoji+' '+e.name+' <small style="color:var(--text2)">'+e.desc+'</small></span><button class="btn ghost" style="padding:3px 8px;font-size:9px" '+(locked?'disabled':'')+' onclick="doHire(\''+e.id+'\')">¥'+e.cost+'</button></div>';
+  });
+  h+='<button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+}
+function doHire(eid){
+  let p=EMPLOYEES.find(x=>x.id===eid);if(!p)return;
+  if(safenum(G.money)<safenum(p.cost)){alert('资金不足');return;}
+  G.money-=safenum(p.cost);
+  G.employees.push({id:p.id,name:p.name,eff:p.eff,val:safenum(p.val),salary:safenum(p.sal)});
+  addLog('招聘 '+p.name+' -¥'+safenum(p.cost),'good');closeModal();render();
+}
+
+// ============ 天赋 ============
+function upTalent(tid){
+  let t=TALENTS.find(x=>x.id===tid);if(!t)return;
+  let cur=G.talents[t.eff]||0;
+  if(G.talentPoints<t.cost||cur>=t.max)return;
+  G.talentPoints-=t.cost;G.talents[t.eff]=cur+1;
+  addLog('升级天赋: '+t.name+' '+(cur+1)+'/'+t.max,'good');
+  // 刷新全局利润率
+  G.inventory.forEach(i=>i.price=sellPrice(i.productId));
+  render();
+}
+
+// ============ 成就 ============
+function showAchievements(){
+  let h='<h3>🏅 成就（'+G.achievements.size+'/'+ACHIEVEMENTS.length+'）</h3>';
+  ACHIEVEMENTS.forEach(a=>{
+    let done=G.achievements.has(a.id);
+    h+='<div class="info-row" style="'+(done?'':'opacity:0.3')+'"><span>'+a.icon+' '+a.name+' <small style="color:var(--text2)">'+a.desc+'</small></span><span style="font-size:9px;color:'+(done?'var(--green)':'var(--text2)')+'">'+(done?'已解锁':'未解锁')+'</span></div>';
+  });
+  h+='<button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h,'large');
+}
+
+// ============ 报表 ============
+function showReport(){
+  let nw=calcNetWorth(),sal=G.employees.reduce((s,e)=>s+safenum(e.salary),0);
+  let h='<h3>📈 经营报表</h3><div style="line-height:2.2;font-size:11px;background:var(--card);border-radius:8px;padding:10px;margin:8px 0">';
+  h+='<div>📅 天数: <b>D'+G.day+'</b> | Lv.<b>'+G.level+'</b></div>';
+  h+='<div>💰 现金: <b style="color:var(--gold)">¥'+fmt(G.money)+'</b></div>';
+  h+='<div>📦 库存: <b>'+totalStock()+'</b>/'+baseStock()+' 件</div>';
+  h+='<div>💼 净资产: <b style="color:var(--gold)">¥'+fmt(nw)+'</b></div>';
+  h+='<div>📊 累计营收: <b style="color:var(--green)">¥'+fmt(G.totalRevenue)+'</b></div>';
+  h+='<div>🎯 总销量: <b>'+fmt(G.totalSold)+'件</b></div>';
+  h+='<div>🏆 最高日收: <b style="color:var(--gold)">¥'+fmt(G.bestDay)+'</b></div>';
+  h+='<div>👥 员工: <b>'+G.employees.length+'人</b> | 日薪 ¥'+fmt(sal)+'</div>';
+  if(G.loan>0)h+='<div>🏦 贷款: <b style="color:var(--accent)">¥'+fmt(G.loan)+'</b>（剩'+G.loanDaysLeft+'天）</div>';
+  h+='</div><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h);
+}
+
+// ============ 日历查看 ============
+function showDayByCalendar(d){
+  let rec=G.allDailyRecords[d];
+  if(!rec||!rec.sales||rec.sales.length===0){
+    openModal('<h3>📅 D'+d+' 无销售记录</h3><button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>');
+    return;
+  }
+  let total=rec.sales.reduce((s,l)=>s+safenum(l.sold)*safenum(l.price),0);
+  let h='<h3>📅 D'+d+' 经营记录</h3><div style="font-size:14px;margin:6px 0">总营收: <b style="color:var(--gold)">¥'+fmt(total)+'</b></div>';
+  rec.sales.forEach(l=>h+='<div class="info-row"><span>'+safenum(l.emoji||'')+' '+safenum(l.name||'')+'</span><span>'+safenum(l.sold)+'件 ¥'+fmt(safenum(l.sold)*safenum(l.price))+'</span></div>');
+  h+='<button class="btn ghost" onclick="closeModal()" style="margin-top:10px;width:100%;padding:8px">关闭</button>';
+  openModal(h);
+}
+
+// ============ 日志记录当天销售 ============
+let _origNextDay=nextDay;
+nextDay=function(){
+  _origNextDay();
+  // 保存当天记录
+  if(!G.allDailyRecords[G.day-1])G.allDailyRecords[G.day-1]={sales:[],events:[],revenue:0};
+  G.allDailyRecords[G.day-1]={sales:G.dailyLog.slice(),events:[],revenue:G.dailyRevenue};
+}
+
+// ============ 初始化 ============
+function init(){
+  initRivals();initMarket();
+  document.addEventListener('keydown',function(e){if(e.code==='Space'){e.preventDefault();nextDay();}});
+  render();
+}
+init();
+</script>
+</body>
+</html>
